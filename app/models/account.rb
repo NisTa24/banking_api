@@ -9,6 +9,8 @@ class Account < ApplicationRecord
            foreign_key: "to_account_id",
            dependent: :restrict_with_exception
 
+  validates :id, presence: true, uuid: true
+
   def balance
     BigDecimal(super.to_s)
   end

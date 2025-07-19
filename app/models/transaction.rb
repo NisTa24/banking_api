@@ -4,6 +4,8 @@ class Transaction < ApplicationRecord
 
   validates :from_account_id, :to_account_id, presence: true
   validates :amount, presence: true, numericality: { greater_than: 0 }
+  validates :id, presence: true, uuid: true
+
   validate :accounts_must_be_different
   validate :sufficient_funds_in_source_account
 
