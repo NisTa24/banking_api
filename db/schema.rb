@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_19_115845) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_19_120316) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -19,4 +19,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_19_115845) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
+
+  create_table "transactions", id: :uuid, default: nil, force: :cascade do |t|
+    t.uuid "from_account_id", null: false
+    t.uuid "to_account_id", null: false
+    t.decimal "amount", precision: 15, scale: 2, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["from_account_id"], name: "index_transactions_on_from_account_id"
+    t.index ["id"], name: "index_transactions_on_id", unique: true
+    t.index ["to_account_id"], name: "index_transactions_on_to_account_id"
+    t.check_constraint "amount > 0::numeric", name: "positive_amount"
+    t.check_constraint "from_account_id <> to_account_id", name: "different_accounts"
+  end
+
+  add_foreign_key "transactions", "accounts", column: "from_account_id"
+  add_foreign_key "transactions", "accounts", column: "to_account_id"
 end
