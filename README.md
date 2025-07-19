@@ -38,7 +38,7 @@ This implementation ensures:
 
 - Ruby (version specified in `.ruby-version` or `Gemfile`)
 - Rails
-- Database (PostgreSQL/MySQL/SQLite)
+- Database (PostgreSQL)
 
 ### Installation
 
