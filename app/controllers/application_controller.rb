@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::API
+  include CustomErrors
+
   rescue_from InsufficientFundsError, with: :insufficient_funds
   rescue_from AccountNotFoundError, with: :account_not_found
   rescue_from TransactionValidationError, with: :transaction_validation_error
