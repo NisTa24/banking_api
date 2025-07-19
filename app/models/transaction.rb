@@ -15,6 +15,26 @@ class Transaction < ApplicationRecord
     super(BigDecimal(value.to_s))
   end
 
+  # Creates a money transfer between two accounts with full atomicity guarantees.
+  #
+  # Transaction Flow:
+  # 1. Database Transaction Rollback: When any exception is raised inside the
+  #    ApplicationRecord.transaction block, the database automatically rolls back
+  #    ALL changes made within that transaction, including:
+  #    - The Transaction.create! record creation
+  #    - Both account balance updates (from_account.update! and to_account.update!)
+  #
+  # 2. Exception Propagation: After the rollback, the original exception bubbles
+  #    up and gets caught by the rescue block.
+  #
+  # 3. Error Re-raising: The rescue block catches ActiveRecord::RecordInvalid
+  #    exceptions and re-raises them as TransactionValidationError with the
+  #    original error message.
+  #
+  # This ensures ATOMICITY - either the entire transfer succeeds (transaction
+  # record created AND both account balances updated), or nothing happens at all
+  # (complete rollback). There's no possibility of partial state where only some
+  # operations succeed.
   def self.create_transfer!(transaction_params)
     amount_decimal = BigDecimal(transaction_params[:amount].to_s)
 
@@ -42,6 +62,8 @@ class Transaction < ApplicationRecord
 
       transaction
     end
+  rescue ActiveRecord::RecordInvalid => e
+    raise TransactionValidationError, e.message
   end
 
   private
