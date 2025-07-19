@@ -1,12 +1,12 @@
 class Account < ApplicationRecord
   has_many :outgoing_transactions,
            class_name: "Transaction",
-           foreign_key_id: "from_account_id",
+           foreign_key: "from_account_id",
            dependent: :restrict_with_exception
 
   has_many :incoming_transactions,
            class_name: "Transaction",
-           foreign_key_id: "to_account_id",
+           foreign_key: "to_account_id",
            dependent: :restrict_with_exception
 
   def balance
