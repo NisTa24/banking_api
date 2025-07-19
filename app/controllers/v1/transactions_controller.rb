@@ -7,14 +7,14 @@ class V1::TransactionsController < ApplicationController
   private
 
   def transaction_params
-    params.require(:transaction).permit(:id, :fromAccountId, :toAccountId, :amount)
-                                .transform_keys do |key|
-                                  case key
-                                  when "fromAccountId" then :from_account_id
-                                  when "toAccountId" then :to_account_id
-                                  else key.to_sym
-                                  end
-                                end
+    params.permit(:id, :fromAccountId, :toAccountId, :amount)
+          .transform_keys do |key|
+            case key
+            when "fromAccountId" then :from_account_id
+            when "toAccountId" then :to_account_id
+            else key.to_sym
+            end
+          end
   end
 
   def format_transaction_response(transaction)

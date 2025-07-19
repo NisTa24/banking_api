@@ -17,7 +17,7 @@ class V1::AccountsController < ApplicationController
   private
 
   def account_params
-    params.require(:account).permit(:id, :balance)
+    params.permit(:id, :balance)
   end
 
   def format_account_response(account)
