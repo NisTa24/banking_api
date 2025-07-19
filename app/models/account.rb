@@ -17,6 +17,19 @@ class Account < ApplicationRecord
     super(BigDecimal(value.to_s))
   end
 
+  def update_balance!(new_balance)
+    Account.transaction do
+      account = Account.lock.find(id)
+
+      if new_balance < 0
+        raise InsufficientFundsError, "Insufficient funds. Current balance: #{account.balance}, attempted: #{new_balance}"
+      end
+
+      account.update!(balance: new_balance)
+      account.balance
+    end
+  end
+
   def sufficient_funds?(amount)
     balance >= BigDecimal(amount.to_s)
   end
