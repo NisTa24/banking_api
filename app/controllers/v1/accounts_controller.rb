@@ -5,7 +5,7 @@ class V1::AccountsController < ApplicationController
     if account.save
       render json: format_account_response(account), status: :created
     else
-      render json: { error: account.errors.full_messages }, status: :unprocessable_entity
+      render json: { error: account.errors.full_messages }, status: :bad_request
     end
   end
 
