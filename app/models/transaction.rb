@@ -15,6 +15,35 @@ class Transaction < ApplicationRecord
     super(BigDecimal(value.to_s))
   end
 
+  def self.create_transfer!(transaction_params)
+    amount_decimal = BigDecimal(transaction_params[:amount].to_s)
+
+    ApplicationRecord.transaction do
+      account_ids = [ transaction_params[:from_account_id], transaction_params[:to_account_id] ].sort
+      locked_accounts = Account.where(id: account_ids).lock.order(:id).to_a
+
+      from_account = locked_accounts.find { |acc| acc.id == transaction_params[:from_account_id] }
+      to_account = locked_accounts.find { |acc| acc.id == transaction_params[:to_account_id] }
+
+      raise AccountNotFoundError, "From account not found" unless from_account
+      raise AccountNotFoundError, "To account not found" unless to_account
+
+      unless from_account.sufficient_funds?(amount_decimal)
+        raise InsufficientFundsError, "Insufficient funds. Available: #{from_account.balance}, Required: #{amount_decimal}"
+      end
+
+      transaction = Transaction.create!(transaction_params)
+
+      new_from_balance = from_account.balance - amount_decimal
+      new_to_balance = to_account.balance + amount_decimal
+
+      from_account.update!(balance: new_from_balance)
+      to_account.update!(balance: new_to_balance)
+
+      transaction
+    end
+  end
+
   private
 
   def accounts_must_be_different
